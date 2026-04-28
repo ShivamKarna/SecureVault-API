@@ -1,28 +1,37 @@
 import { refreshToken } from "better-auth/api";
-import { username } from "better-auth/plugins";
 import { sql } from "drizzle-orm";
 import { sqliteTable, text, integer, index } from "drizzle-orm/sqlite-core";
+
+// For timetamps of tables
+const timeStamps = {
+  createdAt: integer("createdAt", { mode: "timestamp_ms" })
+    .default(sql`(cast(unixepoch('subsecond) * 1000 as integer))`)
+    .notNull(),
+
+  updatedAt: integer("updatedAt", { mode: "timestamp_ms" })
+    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
+    .$onUpdate(() => new Date())
+    .notNull(),
+};
 
 // vault table
 // users table
 // sessions table
+// account table
+
 export const vaultEntries = sqliteTable("vault_entries", {
   id: text("id")
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
-  userId: text("user_id").notNull(),
+  userId: text("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull(),
   label: text("label").notNull(),
-  iv: text("iv").notNull(),
-  url: text("url").notNull(),
-  notes: text("notes").notNull(),
+  url: text("url"),
+  notes: text("notes"),
   username: text("username").notNull(),
   encryptedPassword: text("encrypted_password").notNull(),
-  createdAt: integer("created_at", { mode: "timestamp" })
-    .notNull()
-    .default(sql`(unixepoch())`),
-  updatedAt: integer("updated_at", { mode: "timestamp" })
-    .notNull()
-    .default(sql`(unixepoch())`), // returns the current timestamp as a Unix timestamp
+  ...timeStamps,
 });
 
 // users table
@@ -43,13 +52,7 @@ export const users = sqliteTable("users", {
     .default(false)
     .notNull(),
   image: text("image"),
-  createdAt: integer("created_at", { mode: "timestamp_ms" })
-    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
-    .notNull(),
-  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
-    .default(sql`(cast(unixepoch('subsecond')* 1000 as integer))`)
-    .notNull()
-    .$onUpdate(() => new Date()),
+  ...timeStamps,
 });
 
 // sessions table
@@ -67,17 +70,11 @@ export const sessions = sqliteTable(
     id: text("id").primaryKey(),
     token: text("token").notNull().unique(),
     expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
-    createdAt: integer("created_at", { mode: "timestamp_ms" })
-      .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
-      .notNull(),
-    updatedAt: integer("updated_at", { mode: "timestamp_ms" })
-      .default(sql`(cast(unixepoch('subsecond')* 1000 as integer))`)
-      .notNull()
-      .$onUpdate(() => new Date()),
     userAgent: text("user_agent").notNull(),
     userId: text("user_id")
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
+    ...timeStamps,
   },
   (table) => [index("session_userId_idx").on(table.userId)],
 );
@@ -119,11 +116,24 @@ export const account = sqliteTable("account", {
   }),
   scope: text("scope"),
   password: text("password"),
-  createdAt: integer("created_at", { mode: "timestamp_ms" })
-    .notNull()
-    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`),
-  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
-    .notNull()
-    .$onUpdate(() => new Date())
-    .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`),
+  ...timeStamps,
+});
+
+// verification table
+
+/*
+id
+identifier
+value 
+expiresAt 
+createdAt 
+ */
+export const verification = sqliteTable("verification", {
+  id: text("id").primaryKey(),
+  identifier: text("identifier").notNull(),
+  value: text("value").notNull(),
+  expiresAt: integer("expires_at", { mode: "timestamp_ms" }).default(
+    sql`(cast(unixepoch('subsecond') * 1000 as integer)`,
+  ),
+  ...timeStamps,
 });
