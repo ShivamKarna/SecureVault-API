@@ -1,0 +1,22 @@
+{
+  "name": "password-manager-backend",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy --minify",
+    "cf-typegen": "wrangler types --env-interface CloudflareBindings"
+  },
+  "dependencies": {
+    "@better-auth/cli": "^1.4.21",
+    "@noble/ciphers": "^2.2.0",
+    "better-auth": "^1.6.9",
+    "drizzle-orm": "^0.45.2",
+    "hono": "^4.12.15",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260426.1",
+    "drizzle-kit": "^0.31.10",
+    "wrangler": "^4.85.0"
+  }
+}
