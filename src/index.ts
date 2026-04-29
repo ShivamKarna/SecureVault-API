@@ -1,9 +1,20 @@
-import { Hono } from 'hono'
+import { Hono } from "hono";
+import { getAuth } from "./lib/auth";
 
-const app = new Hono()
+type Bindings = {
+  password_manager_db: D1Database;
+  BETTER_AUTH_SECRET: string;
+};
 
-app.get('/', (c) => {
-  return c.text('Hello Hono!')
-})
+const app = new Hono<{ Bindings: Bindings }>();
 
-export default app
+app.get("/", (c) => {
+  return c.text("Hello Hono!");
+});
+
+app.on(["GET", "POST"], "/api/auth/**", (c) => {
+  const auth = getAuth(c.env.password_manager_db, c.env.BETTER_AUTH_SECRET);
+  return auth.handler(c.req.raw);
+});
+
+export default app;
