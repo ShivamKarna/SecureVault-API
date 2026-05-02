@@ -3,7 +3,7 @@ import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { drizzle } from "drizzle-orm/d1";
 import * as schema from "../db/schema";
 
-export const getAuth = (db: D1Database, authSecret: string) => {
+const getBetterAuthInstance = (db: D1Database, authSecret: string) => {
   const drizzleDb = drizzle(db);
 
   return betterAuth({
@@ -24,3 +24,5 @@ export const getAuth = (db: D1Database, authSecret: string) => {
     },
   });
 };
+
+export { getBetterAuthInstance };
