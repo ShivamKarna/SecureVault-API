@@ -1,3 +1,9 @@
+// getVaults
+// getVaultById
+// createVault
+// updateVaultEntries
+// deleteVault
+
 import { and, eq } from "drizzle-orm";
 import { getDb } from "../db";
 import { vaultEntries } from "../db/schema";
