@@ -8,8 +8,7 @@ import { and, eq } from "drizzle-orm";
 import { getDb } from "../db";
 import { vaultEntries } from "../db/schema";
 import { factory } from "../lib/factory";
-import { parse, z } from "zod";
-import { username } from "better-auth/plugins";
+import { z } from "zod";
 import { encryptPassword } from "../lib/encryption";
 
 export class VaultController {
