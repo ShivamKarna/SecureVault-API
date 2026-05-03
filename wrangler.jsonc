@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "password-manager-backend",
+  "name": "securevault-api",
   "main": "src/index.ts",
   "compatibility_date": "2026-04-28",
   "d1_databases": [
