@@ -1,8 +1,8 @@
 import { Hono } from "hono";
-import passwordRouter from "./password.routes";
+import vaultRouter from "./vault.routes";
 
 const mainRouter = new Hono();
 
-mainRouter.route("/password", passwordRouter);
+mainRouter.route("/vault", vaultRouter);
 
 export default mainRouter;

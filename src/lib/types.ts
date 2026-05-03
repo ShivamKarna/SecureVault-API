@@ -1,6 +1,7 @@
 export type BindingsType = {
   password_manager_db: D1Database;
   BETTER_AUTH_SECRET: string;
+  ENCRYPTION_KEY: string;
 };
 
 export type User = {
