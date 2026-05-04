@@ -11,7 +11,7 @@ app.get("/", (c) => {
 
 app.on(["GET", "POST"], "/api/auth/**", (c) => {
   const auth = getBetterAuthInstance(
-    c.env.password_manager_db,
+    c.env.securevault_db,
     c.env.BETTER_AUTH_SECRET,
   );
   return auth.handler(c.req.raw);
