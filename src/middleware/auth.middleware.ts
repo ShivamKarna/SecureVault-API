@@ -10,6 +10,7 @@ const authCheck = createMiddleware<{
   const auth = getBetterAuthInstance(
     c.env.securevault_db,
     c.env.BETTER_AUTH_SECRET,
+    c.env,
   );
   const session = await auth.api.getSession({ headers: c.req.raw.headers });
 
