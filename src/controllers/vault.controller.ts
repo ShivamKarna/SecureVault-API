@@ -4,7 +4,7 @@
 // updateVaultEntries
 // deleteVault
 
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { getDb } from "../db";
 import { vaultEntries } from "../db/schema";
 import { factory } from "../lib/factory";
@@ -16,12 +16,35 @@ export class VaultController {
     const db = getDb(c.env.securevault_db);
     const user = c.get("user");
 
-    const result = await db
-      .select()
-      .from(vaultEntries)
-      .where(eq(vaultEntries.userId, user.id));
+    const page = Number(c.req.query("page") ?? 1);
+    const limit = Number(c.req.query("limit") ?? 20);
+    const offset = (page - 1) * limit;
 
-    return c.json({ result }, 200);
+    const [result, total] = await Promise.all([
+      db
+        .select()
+        .from(vaultEntries)
+        .where(eq(vaultEntries.userId, user.id))
+        .offset(offset)
+        .limit(limit),
+      db
+        .select({ count: sql<number>`count(*)` })
+        .from(vaultEntries)
+        .where(eq(vaultEntries.userId, user.id))
+        .get(),
+    ]);
+    return c.json(
+      {
+        data: result,
+        metaData: {
+          page,
+          limit,
+          total: total?.count ?? 0,
+          totalPages: Math.ceil((total?.count ?? 0) / limit),
+        },
+      },
+      200,
+    );
   });
   getVaultById = factory.createHandlers(async (c) => {
     const id = c.req.param("id");
