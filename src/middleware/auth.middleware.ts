@@ -8,7 +8,7 @@ const authCheck = createMiddleware<{
   Variables: { user: User };
 }>(async (c, next) => {
   const auth = getBetterAuthInstance(
-    c.env.password_manager_db,
+    c.env.securevault_db,
     c.env.BETTER_AUTH_SECRET,
   );
   const session = await auth.api.getSession({ headers: c.req.raw.headers });
