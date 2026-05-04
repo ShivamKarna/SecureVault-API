@@ -13,7 +13,7 @@ import { encryptPassword } from "../lib/encryption";
 
 export class VaultController {
   getVaults = factory.createHandlers(async (c) => {
-    const db = getDb(c.env.password_manager_db);
+    const db = getDb(c.env.securevault_db);
     const user = c.get("user");
 
     const result = await db
@@ -28,7 +28,7 @@ export class VaultController {
     if (!id) {
       return c.json({ error: "ID is required" }, 400);
     }
-    const db = getDb(c.env.password_manager_db);
+    const db = getDb(c.env.securevault_db);
     const user = c.get("user");
 
     const result = await db
@@ -41,7 +41,7 @@ export class VaultController {
   });
   createVault = factory.createHandlers(async (c) => {
     const userInput = await c.req.json();
-    const db = getDb(c.env.password_manager_db);
+    const db = getDb(c.env.securevault_db);
     const user = c.get("user");
 
     const schema = z.object({
@@ -81,7 +81,7 @@ export class VaultController {
     return c.json({ acknowlegement }, 201);
   });
   updateVaultEntries = factory.createHandlers(async (c) => {
-    const db = getDb(c.env.password_manager_db);
+    const db = getDb(c.env.securevault_db);
 
     const user = c.get("user");
     const vaultId = c.req.param("id");
@@ -139,7 +139,7 @@ export class VaultController {
     return c.json({ result }, 200);
   });
   deleteVault = factory.createHandlers(async (c) => {
-    const db = getDb(c.env.password_manager_db);
+    const db = getDb(c.env.securevault_db);
     const user = c.get("user");
     const vaultId = c.req.param("id");
 
