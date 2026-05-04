@@ -71,17 +71,21 @@ export const verification = sqliteTable("verification", {
   ...timestamps,
 });
 
-export const vaultEntries = sqliteTable("vault_entries", {
-  id: text("id")
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
-  userId: text("user_id")
-    .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
-  label: text("label").notNull(),
-  username: text("username").notNull(),
-  encryptedPassword: text("encrypted_password").notNull(),
-  url: text("url"),
-  notes: text("notes"),
-  ...timestamps,
-});
+export const vaultEntries = sqliteTable(
+  "vault_entries",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    label: text("label").notNull(),
+    username: text("username").notNull(),
+    encryptedPassword: text("encrypted_password").notNull(),
+    url: text("url"),
+    notes: text("notes"),
+    ...timestamps,
+  },
+  (table) => [index("vault_entry_userid_idx").on(table.userId)],
+);
