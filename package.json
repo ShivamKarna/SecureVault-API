@@ -13,10 +13,12 @@
     "better-auth": "^1.6.9",
     "drizzle-orm": "^0.45.2",
     "hono": "^4.12.15",
+    "ua-parser-js": "^2.0.9",
     "zod": "^4.3.6"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260426.1",
+    "@types/ua-parser-js": "^0.7.39",
     "drizzle-kit": "^0.31.10",
     "wrangler": "^4.87.0"
   }

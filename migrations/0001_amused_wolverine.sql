@@ -1,0 +1,1 @@
+CREATE INDEX `vault_entry_userid_idx` ON `vault_entries` (`user_id`);

@@ -1,0 +1,216 @@
+{
+  "info": {
+    "name": "SecureVault API - Requestly",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://securevault.shivamkarn.workers.dev"
+    },
+    {
+      "key": "authCookie",
+      "value": "better-auth.session=PASTE_SESSION_COOKIE"
+    },
+    {
+      "key": "vaultId",
+      "value": "REPLACE_WITH_VAULT_ID"
+    },
+    {
+      "key": "sessionId",
+      "value": "REPLACE_WITH_SESSION_ID"
+    }
+  ],
+  "item": [
+    {
+      "name": "Root - Welcome",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/"
+      }
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Sign Up (Email)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test.user@example.com\",\n  \"password\": \"ChangeMe123!\",\n  \"name\": \"Test User\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/sign-up/email"
+          }
+        },
+        {
+          "name": "Sign In (Email)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test.user@example.com\",\n  \"password\": \"ChangeMe123!\"\n}"
+            },
+            "url": "{{baseUrl}}/api/auth/sign-in/email"
+          }
+        },
+        {
+          "name": "Session",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{authCookie}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/auth/session"
+          }
+        },
+        {
+          "name": "Sign Out",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{authCookie}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/auth/sign-out"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Vault",
+      "item": [
+        {
+          "name": "List",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{authCookie}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/vault?page=1&limit=20"
+          }
+        },
+        {
+          "name": "Get By Id",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{authCookie}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/vault/{{vaultId}}"
+          }
+        },
+        {
+          "name": "Create",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "{{authCookie}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"label\": \"GitHub\",\n  \"username\": \"test.user\",\n  \"password\": \"StrongPass123!\",\n  \"url\": \"https://github.com\",\n  \"notes\": \"Personal account\"\n}"
+            },
+            "url": "{{baseUrl}}/api/vault"
+          }
+        },
+        {
+          "name": "Update",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "{{authCookie}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"label\": \"GitHub Updated\",\n  \"notes\": \"Rotated password\"\n}"
+            },
+            "url": "{{baseUrl}}/api/vault/{{vaultId}}"
+          }
+        },
+        {
+          "name": "Delete",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{authCookie}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/vault/{{vaultId}}"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Session",
+      "item": [
+        {
+          "name": "List",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{authCookie}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/session"
+          }
+        },
+        {
+          "name": "Revoke",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "{{authCookie}}"
+              }
+            ],
+            "url": "{{baseUrl}}/api/session/{{sessionId}}"
+          }
+        }
+      ]
+    }
+  ]
+}
