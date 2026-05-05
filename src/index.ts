@@ -5,7 +5,14 @@ import mainRouter from "./routes";
 import type { BindingsType, User } from "./lib/types";
 import { rateLimit } from "./middleware/rateLimiter.middleware";
 
-const app = new Hono<{ Bindings: BindingsType; Variables: { user: User } }>();
+// swagger docs implementation
+import { OpenAPIHono } from "@hono/zod-openapi";
+import { swaggerUI } from "@hono/swagger-ui";
+
+const app = new OpenAPIHono<{
+  Bindings: BindingsType;
+  Variables: { user: User };
+}>();
 
 app.use(
   "*",
@@ -21,7 +28,7 @@ const startTime = Date.now();
 const serviceInfo = {
   name: "SecureVault API",
   description: "Encrypted vault storage and session management.",
-  contact: "support@shivam-karn.com.np",
+  contact: "contact@shivam-karn.com.np",
 };
 
 app.get("/", (c) => {
@@ -66,5 +73,25 @@ app.on(["GET", "POST"], "/api/auth/**", (c) => {
 });
 
 app.route("/api", mainRouter);
+
+app.doc("/docs/json", {
+  openapi: "3.0.0",
+  info: {
+    title: "SecureVault API",
+    version: "1.0",
+    description: "Encrypted vault storage and session management.",
+    contact: {
+      email: "contact@shivam-karn.com.np",
+    },
+  },
+  servers: [
+    {
+      url: "https://securevault.shivamkarn.workers.dev",
+      description: "Production",
+    },
+    { url: "http://localhost:8787", description: "Local" },
+  ],
+});
+app.get("/docs", swaggerUI({ url: "/docs/json" }));
 
 export default app;

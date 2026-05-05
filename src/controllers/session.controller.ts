@@ -2,13 +2,19 @@
 // revokeSession
 
 import { getDb } from "../db";
-import { factory } from "../lib/factory";
 import { session } from "../db/schema";
 import { eq, and } from "drizzle-orm";
 import { UAParser } from "ua-parser-js";
+import type { Context } from "hono";
+import type { BindingsType, User } from "../lib/types";
+
+type AppEnv = {
+  Bindings: BindingsType;
+  Variables: { user: User };
+};
 
 class SessionController {
-  getSessions = factory.createHandlers(async (c) => {
+  getSessions = async (c: Context<AppEnv>) => {
     const db = getDb(c.env.securevault_db);
     const user = c.get("user");
 
@@ -37,8 +43,8 @@ class SessionController {
       };
     });
     return c.json({ data: parsed }, 200);
-  });
-  revokeSession = factory.createHandlers(async (c) => {
+  };
+  revokeSession = async (c: Context<AppEnv>) => {
     const db = getDb(c.env.securevault_db);
     const user = c.get("user");
     const sessionId = c.req.param("id");
@@ -62,7 +68,7 @@ class SessionController {
       .where(and(eq(session.id, sessionId), eq(session.userId, user.id)));
 
     return c.json({ message: "Session Revoked Successfully" }, 200);
-  });
+  };
 }
 
 export const sessionController = new SessionController();

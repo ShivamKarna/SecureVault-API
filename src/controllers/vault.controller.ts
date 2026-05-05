@@ -7,12 +7,18 @@
 import { and, eq, sql } from "drizzle-orm";
 import { getDb } from "../db";
 import { vaultEntries } from "../db/schema";
-import { factory } from "../lib/factory";
 import { z } from "zod";
 import { encryptPassword } from "../lib/encryption";
+import type { Context } from "hono";
+import type { BindingsType, User } from "../lib/types";
+
+type AppEnv = {
+  Bindings: BindingsType;
+  Variables: { user: User };
+};
 
 export class VaultController {
-  getVaults = factory.createHandlers(async (c) => {
+  getVaults = async (c: Context<AppEnv>) => {
     const db = getDb(c.env.securevault_db);
     const user = c.get("user");
 
@@ -45,8 +51,8 @@ export class VaultController {
       },
       200,
     );
-  });
-  getVaultById = factory.createHandlers(async (c) => {
+  };
+  getVaultById = async (c: Context<AppEnv>) => {
     const id = c.req.param("id");
     if (!id) {
       return c.json({ error: "ID is required" }, 400);
@@ -61,8 +67,8 @@ export class VaultController {
       .get(); // get makes sure that it returns the first row or undefined
 
     return c.json({ result }, 200);
-  });
-  createVault = factory.createHandlers(async (c) => {
+  };
+  createVault = async (c: Context<AppEnv>) => {
     const userInput = await c.req.json();
     const db = getDb(c.env.securevault_db);
     const user = c.get("user");
@@ -102,8 +108,8 @@ export class VaultController {
     }
 
     return c.json({ acknowlegement }, 201);
-  });
-  updateVaultEntries = factory.createHandlers(async (c) => {
+  };
+  updateVaultEntries = async (c: Context<AppEnv>) => {
     const db = getDb(c.env.securevault_db);
 
     const user = c.get("user");
@@ -160,8 +166,8 @@ export class VaultController {
       return c.json({ message: "Something went wrong" }, 500);
     }
     return c.json({ result }, 200);
-  });
-  deleteVault = factory.createHandlers(async (c) => {
+  };
+  deleteVault = async (c: Context<AppEnv>) => {
     const db = getDb(c.env.securevault_db);
     const user = c.get("user");
     const vaultId = c.req.param("id");
@@ -188,7 +194,7 @@ export class VaultController {
         and(eq(vaultEntries.id, vaultId), eq(vaultEntries.userId, user.id)),
       );
     return c.json({ message: "Vault Deleted Successfully" }, 200);
-  });
+  };
 }
 
 export const vaultController = new VaultController();
