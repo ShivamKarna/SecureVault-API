@@ -54,6 +54,14 @@ Request
 | GET    | /api/sessions            | Yes  | Get all active sessions with device info |
 | DELETE | /api/sessions/:id        | Yes  | Revoke a session                         |
 
+## OpenAPI / Swagger
+
+The API exposes an OpenAPI 3.0 spec and a Swagger UI powered by Hono's
+`@hono/zod-openapi` and `@hono/swagger-ui` integrations.
+
+- OpenAPI JSON: https://securevault.shivamkarn.workers.dev/docs/json
+- Swagger UI: https://securevault.shivamkarn.workers.dev/docs
+
 ## Security
 
 - Passwords are encrypted with **AES-256-GCM** before being stored — the encryption key never leaves the server
