@@ -10,13 +10,21 @@ Backend for SecureVault, a password manager that stores encrypted credentials. B
 ![Better Auth](https://img.shields.io/badge/Better_Auth-000000?style=flat&logoColor=white)
 ![D1](https://img.shields.io/badge/Cloudflare-D1-F38020?style=flat&logo=cloudflare&logoColor=white)
 
+## Live API + Docs
+
+Production endpoints for the API root and its OpenAPI docs.
+
+- Root API: https://securevault.shivamkarn.workers.dev
+- Swagger UI: https://securevault.shivamkarn.workers.dev/docs
+- OpenAPI JSON: https://securevault.shivamkarn.workers.dev/docs/json
+
 ## Stack
 
 - **Hono** — routing and middleware
 - **Better Auth** — session-based authentication with email/password and OAuth (Google, GitHub)
 - **Cloudflare D1** — SQLite database at the edge
 - **Cloudflare KV** — rate limiting
-- **Drizzle ORM** — type-safe queries
+- **Drizzle ORM** — type-safe queries with zod validation of schemas
 - **Web Crypto API** — AES-256-GCM encryption for stored passwords
 
 ## What it does
@@ -53,14 +61,6 @@ Request
 | DELETE | /api/vault/:id           | Yes  | Delete vault entry                       |
 | GET    | /api/sessions            | Yes  | Get all active sessions with device info |
 | DELETE | /api/sessions/:id        | Yes  | Revoke a session                         |
-
-## OpenAPI / Swagger
-
-The API exposes an OpenAPI 3.0 spec and a Swagger UI powered by Hono's
-`@hono/zod-openapi` and `@hono/swagger-ui` integrations.
-
-- OpenAPI JSON: https://securevault.shivamkarn.workers.dev/docs/json
-- Swagger UI: https://securevault.shivamkarn.workers.dev/docs
 
 ## Security
 
