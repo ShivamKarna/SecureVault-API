@@ -3,12 +3,8 @@
     "target": "ESNext",
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "types": [
-      "@cloudflare/workers-types"
-    ],
+    "types": ["@cloudflare/workers-types"],
     "strict": true,
-    "lib": [
-      "ESNext"
-    ]
+    "lib": ["ESNext", "WebWorker"]
   }
 }

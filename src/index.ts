@@ -17,9 +17,43 @@ app.use(
   }),
 );
 
+const startTime = Date.now();
+const serviceInfo = {
+  name: "SecureVault API",
+  description: "Encrypted vault storage and session management.",
+  contact: "support@shivam-karn.com.np",
+};
+
 app.get("/", (c) => {
-  return c.text("Welcome to SecureVault API !");
+  const upTime = Date.now() - startTime;
+
+  return c.json({
+    status: "ok",
+    service: serviceInfo,
+    apiBase: "/api",
+    health: "/health",
+    uptime: format(upTime),
+    timestamp: new Date().toISOString(),
+  });
 });
+
+app.get("/health", (c) => {
+  const upTime = Date.now() - startTime;
+
+  return c.json({
+    status: "ok",
+    uptime: format(upTime),
+    timestamp: new Date().toISOString(),
+    note: "instance uptime (resets on cold start)",
+  });
+});
+function format(ms: number) {
+  const s = Math.floor(ms / 1000) % 60;
+  const m = Math.floor(ms / (1000 * 60)) % 60;
+  const h = Math.floor(ms / (1000 * 60 * 60));
+
+  return `${h}h ${m}m ${s}s`;
+}
 app.use("/api/*", rateLimit);
 
 app.on(["GET", "POST"], "/api/auth/**", (c) => {
