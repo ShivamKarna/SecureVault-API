@@ -1,3 +1,5 @@
+![License](https://img.shields.io/badge/License-MIT-green?style=flat)
+
 # SecureVault API
 
 Backend for SecureVault, a password manager that stores encrypted credentials. Built on Cloudflare's edge infrastructure.
