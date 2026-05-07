@@ -7,7 +7,7 @@
 import { and, eq, sql } from "drizzle-orm";
 import { getDb } from "../db";
 import { vaultEntries } from "../db/schema";
-import { z } from "zod";
+import { parse, z } from "zod";
 import { encryptPassword } from "../lib/encryption";
 import type { Context } from "hono";
 import type { BindingsType, User } from "../lib/types";
@@ -90,8 +90,11 @@ export class VaultController {
       parsed.data.password,
       c.env.ENCRYPTION_KEY,
     );
+    if (!encryptedPassword) {
+      return c.json({ message: " Internal Server Error" }, 500);
+    }
 
-    const acknowlegement = await db
+    const [row] = await db
       .insert(vaultEntries)
       .values({
         userId: user.id,
@@ -101,13 +104,24 @@ export class VaultController {
         url: parsed.data.url ?? null,
         notes: parsed.data.notes ?? null,
       })
-      .returning();
-
-    if (!acknowlegement) {
-      return c.json({ message: "Something went Wrong" }, 500);
+      .returning({
+        id: vaultEntries.id,
+        label: vaultEntries.label,
+        username: vaultEntries.username,
+        url: vaultEntries.url,
+        notes: vaultEntries.notes,
+      });
+    if (!row) {
+      return c.json({ message: "Internal Server Error" }, 500);
     }
 
-    return c.json({ acknowlegement }, 201);
+    return c.json(
+      {
+        data: row,
+        message: "Vault created Successfully",
+      },
+      201,
+    );
   };
   updateVaultEntries = async (c: Context<AppEnv>) => {
     const db = getDb(c.env.securevault_db);
@@ -144,28 +158,45 @@ export class VaultController {
     if (!parsed.success) {
       return c.json({ error: parsed.error.issues }, 400);
     }
-    const encryptedPassword = parsed.data.password
-      ? await encryptPassword(parsed.data.password, c.env.ENCRYPTION_KEY)
-      : undefined;
 
-    const result = await db
+    const updateData: Partial<typeof vaultEntries.$inferInsert> = {};
+
+    if (parsed.data.label !== undefined) updateData.label = parsed.data.label;
+    if (parsed.data.username !== undefined)
+      updateData.username = parsed.data.username;
+    if (parsed.data.url !== undefined) updateData.url = parsed.data.url;
+    if (parsed.data.notes !== undefined) updateData.notes = parsed.data.notes;
+
+    if (parsed.data.password !== undefined) {
+      updateData.encryptedPassword = await encryptPassword(
+        parsed.data.password,
+        c.env.ENCRYPTION_KEY,
+      );
+    }
+    const [row] = await db
       .update(vaultEntries)
-      .set({
-        label: parsed.data.label,
-        username: parsed.data.username,
-        encryptedPassword,
-        url: parsed.data.url,
-        notes: parsed.data.notes,
-      })
+      .set(updateData)
       .where(
         and(eq(vaultEntries.id, vaultId), eq(vaultEntries.userId, user.id)),
       )
-      .returning();
+      .returning({
+        id: vaultEntries.id,
+        label: vaultEntries.label,
+        username: vaultEntries.username,
+        url: vaultEntries.url,
+        notes: vaultEntries.notes,
+      });
 
-    if (!result.length) {
-      return c.json({ message: "Something went wrong" }, 500);
+    if (!row) {
+      return c.json({ message: "Vault entry not found" }, 404);
     }
-    return c.json({ result }, 200);
+    return c.json(
+      {
+        data: row,
+        message: "Vault Entries Updated Successfully",
+      },
+      200,
+    );
   };
   deleteVault = async (c: Context<AppEnv>) => {
     const db = getDb(c.env.securevault_db);
