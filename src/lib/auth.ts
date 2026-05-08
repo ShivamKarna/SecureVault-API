@@ -4,7 +4,7 @@ import { drizzle } from "drizzle-orm/d1";
 import * as schema from "../db/schema";
 import type { BindingsType } from "./types";
 
-const getBetterAuthInstance = (
+const buildAuth = (
   db: D1Database,
   authSecret: string,
   bindings: Pick<
@@ -50,6 +50,29 @@ const getBetterAuthInstance = (
       },
     },
   });
+};
+
+let cachedAuth: ReturnType<typeof buildAuth> | undefined;
+
+const getBetterAuthInstance = (
+  db: D1Database,
+  authSecret: string,
+  bindings: Pick<
+    BindingsType,
+    | "GOOGLE_CLIENT_ID"
+    | "GOOGLE_CLIENT_SECRET"
+    | "GITHUB_CLIENT_ID"
+    | "GITHUB_CLIENT_SECRET"
+    | "BETTER_AUTH_URL"
+  >,
+) => {
+  if (cachedAuth) {
+    return cachedAuth;
+  }
+
+  cachedAuth = buildAuth(db, authSecret, bindings);
+
+  return cachedAuth;
 };
 
 export { getBetterAuthInstance };
