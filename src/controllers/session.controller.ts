@@ -42,7 +42,7 @@ class SessionController {
         },
       };
     });
-    return c.json({ data: parsed }, 200);
+    return c.json({ success: true, data: parsed }, 200);
   };
   revokeSession = async (c: Context<AppEnv>) => {
     const db = getDb(c.env.securevault_db);
@@ -50,7 +50,7 @@ class SessionController {
     const sessionId = c.req.param("id");
 
     if (!sessionId) {
-      return c.json({ message: "SessionId is Required" }, 400);
+      return c.json({ success: false, error: "SessionId is Required" }, 400);
     }
 
     const sessionToBeRevoked = await db
@@ -60,14 +60,17 @@ class SessionController {
       .get();
 
     if (!sessionToBeRevoked) {
-      return c.json({ message: "Session not found" }, 404);
+      return c.json({ success: false, error: "Session not found" }, 404);
     }
 
     await db
       .delete(session)
       .where(and(eq(session.id, sessionId), eq(session.userId, user.id)));
 
-    return c.json({ message: "Session Revoked Successfully" }, 200);
+    return c.json(
+      { success: true, message: "Session Revoked Successfully" },
+      200,
+    );
   };
 }
 

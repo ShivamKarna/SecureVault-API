@@ -7,7 +7,7 @@
 import { and, eq, sql } from "drizzle-orm";
 import { getDb } from "../db";
 import { vaultEntries } from "../db/schema";
-import { parse, z } from "zod";
+import { success, z } from "zod";
 import { encryptPassword } from "../lib/encryption";
 import type { Context } from "hono";
 import type { BindingsType, User } from "../lib/types";
@@ -17,14 +17,33 @@ type AppEnv = {
   Variables: { user: User };
 };
 
+type QueryParams = Record<string, string | undefined>;
+export const getPagination = (query: QueryParams) => {
+  const rawPage = query.page;
+  const rawLimit = query.limit;
+
+  const page = Math.max(
+    1,
+    Number.isFinite(Number(rawPage)) ? Number(rawPage) : 1,
+  );
+  const limit = Math.min(
+    50,
+    Math.max(1, Number.isFinite(Number(rawLimit)) ? Number(rawLimit) : 10),
+  );
+
+  const offset = (page - 1) * limit;
+
+  return {
+    page,
+    limit,
+    offset,
+  };
+};
 export class VaultController {
   getVaults = async (c: Context<AppEnv>) => {
     const db = getDb(c.env.securevault_db);
     const user = c.get("user");
-
-    const page = Number(c.req.query("page") ?? 1);
-    const limit = Number(c.req.query("limit") ?? 20);
-    const offset = (page - 1) * limit;
+    const { page, limit, offset } = getPagination(c.req.query());
 
     const [result, total] = await Promise.all([
       db
@@ -41,12 +60,14 @@ export class VaultController {
     ]);
     return c.json(
       {
+        success: true,
         data: result,
         metaData: {
           page,
           limit,
           total: total?.count ?? 0,
           totalPages: Math.ceil((total?.count ?? 0) / limit),
+          hasMore: result.length === limit,
         },
       },
       200,
@@ -55,7 +76,7 @@ export class VaultController {
   getVaultById = async (c: Context<AppEnv>) => {
     const id = c.req.param("id");
     if (!id) {
-      return c.json({ error: "ID is required" }, 400);
+      return c.json({ success: false, error: "ID is required" }, 400);
     }
     const db = getDb(c.env.securevault_db);
     const user = c.get("user");
@@ -66,7 +87,7 @@ export class VaultController {
       .where(and(eq(vaultEntries.id, id), eq(vaultEntries.userId, user.id)))
       .get(); // get makes sure that it returns the first row or undefined
 
-    return c.json({ result }, 200);
+    return c.json({ success: true, data: result }, 200);
   };
   createVault = async (c: Context<AppEnv>) => {
     const userInput = await c.req.json();
@@ -83,7 +104,7 @@ export class VaultController {
 
     const parsed = schema.safeParse(userInput);
     if (!parsed.success) {
-      return c.json({ error: parsed.error.issues }, 400);
+      return c.json({ success: false, error: parsed.error.issues }, 400);
     }
 
     const encryptedPassword = await encryptPassword(
@@ -91,7 +112,7 @@ export class VaultController {
       c.env.ENCRYPTION_KEY,
     );
     if (!encryptedPassword) {
-      return c.json({ message: " Internal Server Error" }, 500);
+      return c.json({ success: false, error: " Internal Server Error" }, 500);
     }
 
     const [row] = await db
@@ -112,13 +133,14 @@ export class VaultController {
         notes: vaultEntries.notes,
       });
     if (!row) {
-      return c.json({ message: "Internal Server Error" }, 500);
+      return c.json({ success: false, error: "Internal Server Error" }, 500);
     }
 
     return c.json(
       {
-        data: row,
+        success: true,
         message: "Vault created Successfully",
+        data: row,
       },
       201,
     );
@@ -129,7 +151,7 @@ export class VaultController {
     const user = c.get("user");
     const vaultId = c.req.param("id");
     if (!vaultId) {
-      return c.json({ error: "ID is required" }, 400);
+      return c.json({ success: false, error: "ID is required" }, 400);
     }
     const existenceProof = await db
       .select()
@@ -140,7 +162,7 @@ export class VaultController {
       .get();
 
     if (!existenceProof) {
-      return c.json({ message: "Vault Entry Not Found" }, 404);
+      return c.json({ success: false, error: "Vault Entry Not Found" }, 404);
     }
 
     const newValues = await c.req.json();
@@ -156,7 +178,7 @@ export class VaultController {
 
     const parsed = schema.safeParse(newValues);
     if (!parsed.success) {
-      return c.json({ error: parsed.error.issues }, 400);
+      return c.json({ success: false, error: parsed.error.issues }, 400);
     }
 
     const updateData: Partial<typeof vaultEntries.$inferInsert> = {};
@@ -188,12 +210,13 @@ export class VaultController {
       });
 
     if (!row) {
-      return c.json({ message: "Vault entry not found" }, 404);
+      return c.json({ success: false, error: "Vault entry not found" }, 404);
     }
     return c.json(
       {
-        data: row,
+        success: true,
         message: "Vault Entries Updated Successfully",
+        data: row,
       },
       200,
     );
@@ -204,7 +227,7 @@ export class VaultController {
     const vaultId = c.req.param("id");
 
     if (!vaultId) {
-      return c.json({ message: "Id not provided" }, 400);
+      return c.json({ success: false, error: "Id not provided" }, 400);
     }
 
     const existing = await db
@@ -216,7 +239,7 @@ export class VaultController {
       .get();
 
     if (!existing) {
-      return c.json({ message: "Vault Entry not found" }, 404);
+      return c.json({ success: false, error: "Vault Entry not found" }, 404);
     }
 
     await db
@@ -224,7 +247,7 @@ export class VaultController {
       .where(
         and(eq(vaultEntries.id, vaultId), eq(vaultEntries.userId, user.id)),
       );
-    return c.json({ message: "Vault Deleted Successfully" }, 200);
+    return c.json({ success: true, error: "Vault Deleted Successfully" }, 200);
   };
 }
 
