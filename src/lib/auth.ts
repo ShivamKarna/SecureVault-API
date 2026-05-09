@@ -25,7 +25,6 @@ const buildAuth = (
         user: schema.user,
         session: schema.session,
         account: schema.account,
-        verification: schema.verification,
       },
     }),
     secret: authSecret,
@@ -37,7 +36,7 @@ const buildAuth = (
       "https://vault.shivam-karn.com.np",
     ],
     emailAndPassword: {
-      enabled: true,
+      enabled: false,
     },
     socialProviders: {
       google: {
@@ -51,7 +50,6 @@ const buildAuth = (
     },
   });
 };
-
 let cachedAuth: ReturnType<typeof buildAuth> | undefined;
 
 const getBetterAuthInstance = (
