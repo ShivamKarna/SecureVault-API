@@ -247,7 +247,10 @@ export class VaultController {
       .where(
         and(eq(vaultEntries.id, vaultId), eq(vaultEntries.userId, user.id)),
       );
-    return c.json({ success: true, error: "Vault Deleted Successfully" }, 200);
+    return c.json(
+      { success: true, message: "Vault Deleted Successfully" },
+      200,
+    );
   };
 }
 
