@@ -21,7 +21,7 @@ Production endpoints for the API root and its OpenAPI docs.
 ## Stack
 
 - **Hono** — routing and middleware
-- **Better Auth** — session-based authentication with email/password and OAuth (Google, GitHub)
+- **Better Auth** — session-based authentication with OAuth (Google, GitHub)
 - **Cloudflare D1** — SQLite database at the edge
 - **Cloudflare KV** — rate limiting
 - **Drizzle ORM** — type-safe queries with zod validation of schemas
@@ -51,8 +51,6 @@ Request
 
 | Method | Route                    | Auth | Description                              |
 | ------ | ------------------------ | ---- | ---------------------------------------- |
-| POST   | /api/auth/sign-up/email  | No   | Register with email/password             |
-| POST   | /api/auth/sign-in/email  | No   | Login with email/password                |
 | POST   | /api/auth/sign-in/social | No   | OAuth login (Google, GitHub)             |
 | GET    | /api/vault               | Yes  | Get all vault entries (paginated)        |
 | POST   | /api/vault               | Yes  | Create vault entry                       |
