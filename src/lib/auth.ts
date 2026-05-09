@@ -25,6 +25,7 @@ const buildAuth = (
         user: schema.user,
         session: schema.session,
         account: schema.account,
+        verification: schema.verification,
       },
     }),
     secret: authSecret,
