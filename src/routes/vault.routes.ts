@@ -2,6 +2,7 @@ import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 import { authCheck } from "../middleware/auth.middleware";
 import { vaultController } from "../controllers/vault.controller";
 import type { BindingsType, User } from "../lib/types";
+import { paginationSchema } from "./routesSchema";
 
 const vaultRouter = new OpenAPIHono<{
   Bindings: BindingsType;
@@ -16,6 +17,9 @@ vaultRouter.openapi(
     path: "/",
     tags: ["Vault"],
     summary: "Get all vault entries",
+    request: {
+      query: paginationSchema,
+    },
     responses: {
       200: { description: "List of vault entries" },
       401: { description: "Unauthorized" },
