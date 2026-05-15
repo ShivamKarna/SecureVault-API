@@ -50,7 +50,7 @@ class SessionController {
     const sessionId = c.req.param("id");
 
     if (!sessionId) {
-      return c.json({ success: false, error: "SessionId is Required" }, 400);
+      return c.json({ success: false, error: "Session not found" }, 404);
     }
 
     const sessionToBeRevoked = await db

@@ -74,17 +74,20 @@ export class VaultController {
     );
   };
   getVaultById = async (c: Context<AppEnv>) => {
-    const id = c.req.param("id");
-    if (!id) {
-      return c.json({ success: false, error: "ID is required" }, 400);
-    }
     const db = getDb(c.env.securevault_db);
     const user = c.get("user");
+    const vaultId = c.req.param("id");
+
+    if (!vaultId) {
+      return c.json({ success: false, error: "Vault Entry not found" }, 404);
+    }
 
     const result = await db
       .select()
       .from(vaultEntries)
-      .where(and(eq(vaultEntries.id, id), eq(vaultEntries.userId, user.id)))
+      .where(
+        and(eq(vaultEntries.id, vaultId), eq(vaultEntries.userId, user.id)),
+      )
       .get(); // get makes sure that it returns the first row or undefined
 
     return c.json({ success: true, data: result }, 200);
@@ -151,7 +154,7 @@ export class VaultController {
     const user = c.get("user");
     const vaultId = c.req.param("id");
     if (!vaultId) {
-      return c.json({ success: false, error: "ID is required" }, 400);
+      return c.json({ success: false, error: "Vault Entry not found" }, 404);
     }
     const existenceProof = await db
       .select()
@@ -210,7 +213,7 @@ export class VaultController {
       });
 
     if (!row) {
-      return c.json({ success: false, error: "Vault entry not found" }, 404);
+      return c.json({ success: false, error: "Vault Entry not found" }, 404);
     }
     return c.json(
       {
@@ -227,7 +230,7 @@ export class VaultController {
     const vaultId = c.req.param("id");
 
     if (!vaultId) {
-      return c.json({ success: false, error: "Id not provided" }, 400);
+      return c.json({ success: false, error: "Vault Entry not found" }, 404);
     }
 
     const existing = await db

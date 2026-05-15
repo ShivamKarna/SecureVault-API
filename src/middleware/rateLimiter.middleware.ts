@@ -1,6 +1,5 @@
 import { createMiddleware } from "hono/factory";
 import { BindingsType } from "../lib/types";
-import { unknown } from "zod";
 
 type rateLimitBindingType = Pick<BindingsType, "RATE_LIMIT">;
 
